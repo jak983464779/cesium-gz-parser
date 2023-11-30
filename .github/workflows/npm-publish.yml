@@ -16,8 +16,10 @@ jobs:
         with:
           node-version: 18.x
           registry-url: https://registry.npmjs.org/
-      - name: Install dependencies and build
-        run: npm install && npm run build
+      - name: Install dependencies
+        run: yarn install
+      - name: build
+        run: yarn build
 
   publish-npm:
     needs: build

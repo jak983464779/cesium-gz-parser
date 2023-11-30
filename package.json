@@ -1,0 +1,47 @@
+{
+  "name": "cesium-gz-parser",
+  "version": "1.0.0",
+  "description": "Add 3dtiles to parser GZip",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "prepare": "npm run build",
+    "install-peers": "npm-install-peers"
+  },
+  "keywords": [
+    "cesium",
+    "3dtiles",
+    "gzip"
+  ],
+  "author": "jak <jiankang@ev-image.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.1",
+    "@types/pako": "^2.0.3",
+    "cesium": "^1.111.0",
+    "prettier": "^3.1.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.2"
+  },
+  "peerDependencies": {
+    "cesium": "^1.108.0"
+  },
+  "dependencies": {
+    "ajax-hook": "^3.0.3",
+    "pako": "^2.1.0"
+  },
+  "external": false
+}

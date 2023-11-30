@@ -7,7 +7,10 @@ export function isGzip(buffer: ArrayBuffer): boolean {
 	const view = new Uint8Array(buffer);
 	return view[0] === 0x1f && view[1] === 0x8b;
 }
-
+/**
+ * @description 加载cesium-gz-parser
+ * @param Cesium 
+ */
 export function loadCesiumGzParser(Cesium: CesiumType) {
 	const fetchImage = Cesium.Resource.prototype.fetchImage;
 	// 重写fetchImage方法，增加对ktx2.gz的支持

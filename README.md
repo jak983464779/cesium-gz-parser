@@ -1,5 +1,7 @@
 # cesium-gz-parser
-Add 3dtiles to parser GZip
+针对事先将3d tiles数据压缩成gzip提供的插件
+![Alt text](./assets/imgs/glb_gz.png)
+![Alt text](./assets/imgs/gltf_gz.png)
 ```shell
 npm install cesium-gz-parser
 #or

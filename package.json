@@ -1,6 +1,6 @@
 {
   "name": "cesium-gz-parser",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Add 3dtiles to parser GZip",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",

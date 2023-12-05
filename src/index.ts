@@ -1,7 +1,31 @@
-import type Cesium from "cesium";
-import { XhrResponse, XhrResponseHandler, proxy } from "ajax-hook";
+import {
+	XhrRequestConfig,
+	XhrRequestHandler,
+	XhrResponse,
+	XhrResponseHandler,
+	proxy,
+} from "ajax-hook";
 import pako from "pako";
-type CesiumType = typeof Cesium;
+import { INDEXEDDB, createInstance, supports } from "localforage";
+import dayjs from "dayjs";
+import type {
+	ILocalForage,
+	CesiumType,
+	ILoadCesiumGzParserOpt,
+	Nullable,
+} from "./types/type";
+
+async function createIndexDBStore(): Promise<ILocalForage> {
+	const store = createInstance({
+		name: "gzData",
+		storeName: "gzData",
+		driver: INDEXEDDB,
+		description: "Store the decompressed gz data",
+		version: 1,
+	});
+	await store.ready();
+	return store;
+}
 
 export function isGzip(buffer: ArrayBuffer): boolean {
 	const view = new Uint8Array(buffer);
@@ -9,9 +33,17 @@ export function isGzip(buffer: ArrayBuffer): boolean {
 }
 /**
  * @description 加载cesium-gz-parser
- * @param Cesium 
+ * @param Cesium
  */
-export function loadCesiumGzParser(Cesium: CesiumType) {
+export async function loadCesiumGzParser(
+	Cesium: CesiumType,
+	opt: ILoadCesiumGzParserOpt = { useIndexDB: true }
+): Promise<Nullable<ILocalForage>> {
+	let store: Nullable<ILocalForage> = null;
+	if (opt.useIndexDB && supports(INDEXEDDB)) {
+		store = await createIndexDBStore();
+	}
+	const isUseIndexDB = opt.useIndexDB && store;
 	const fetchImage = Cesium.Resource.prototype.fetchImage;
 	// 重写fetchImage方法，增加对ktx2.gz的支持
 	Cesium.Resource.prototype.fetchImage = function (...args: any) {
@@ -22,21 +54,51 @@ export function loadCesiumGzParser(Cesium: CesiumType) {
 		return fetchImage.apply(this, args);
 	};
 	proxy({
+		onRequest: async (req: XhrRequestConfig, handler: XhrRequestHandler) => {
+			const { url } = req;
+			if (isUseIndexDB) {
+				const storeRes = await store?.getItem(url);
+				if (storeRes) {
+					return handler.resolve({
+						config: req,
+						headers: {
+							"content-type": "application/octet-stream",
+							"last-modified": new Date(
+								dayjs().add(8, "hour").format()
+							).toUTCString(),
+						},
+						response: storeRes,
+						status: 200,
+						statusText: "OK",
+					});
+				}
+			}
+			handler.next(req);
+		},
 		onResponse: async (res: XhrResponse, handler: XhrResponseHandler) => {
-			const { response } = res;
+			const {
+				response,
+				config: { url },
+			} = res;
 			// 如果类型是Blob，需要先解析为arrayBuffer, 再判断是否为gzip，然后解压
 			if (response instanceof Blob) {
 				const buffer = await response.arrayBuffer();
 				if (isGzip(buffer)) {
 					const inflateBuffer = pako.inflate(buffer);
 					res.response = new Blob([inflateBuffer], { type: response.type });
+					if (isUseIndexDB) store?.setItem(url, res.response);
 				}
 			} else if (isGzip(response)) {
 				res.response = pako.inflate(new Uint8Array(response));
+				if (isUseIndexDB) store?.setItem(url, res.response);
 			}
 			handler.next(res);
 		},
 	});
+	if (isUseIndexDB) {
+		return store as ILocalForage;
+	}
+	return null;
 }
 
 /**

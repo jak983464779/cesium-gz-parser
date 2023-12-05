@@ -31,7 +31,11 @@
   "devDependencies": {
     "@types/node": "^20.10.1",
     "@types/pako": "^2.0.3",
+    "ajax-hook": "^3.0.3",
     "cesium": "^1.111.0",
+    "dayjs": "^1.11.10",
+    "localforage": "^1.10.0",
+    "pako": "^2.1.0",
     "prettier": "^3.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.2"
@@ -40,8 +44,7 @@
     "cesium": "^1.108.0"
   },
   "dependencies": {
-    "ajax-hook": "^3.0.3",
-    "pako": "^2.1.0"
+    "@types/localforage": "^0.0.34"
   },
   "repository": {
     "type": "git",

@@ -8,6 +8,10 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "http://192.168.0.32:8081/repository/npm-hosted/"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
